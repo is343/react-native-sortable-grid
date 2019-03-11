@@ -342,8 +342,6 @@ class SortableGrid extends Component {
   };
 
   activateDrag = key => () => {
-    console.log(key);
-    console.log(this.props.disableDrag);
     if (this.props.disableDrag) return;
     if (this.props.deleteOnPress && this.state.deleteModeOn) {
       return this.deleteBlocks([key]);
