@@ -374,40 +374,48 @@ class SortableGrid extends Component {
     this.state.blockPositionsSetCount === this.items.length;
 
   _saveItemOrder = items => {
-    items.forEach((item, index) => {
-      if (!_.findKey(this.itemOrder, oldItem => oldItem.key === item.key)) {
-        this.itemOrder.push({
-          key: item.key,
-          ref: item.ref,
-          order: this.items.length
-        });
-        if (!this.initialLayoutDone) {
-          this.items.push(item);
-        } else {
-          let blockPositions = this.state.blockPositions;
-          let blockPositionsSetCount = ++this.state.blockPositionsSetCount;
-          let thisPosition = this.getNextBlockCoordinates();
-          blockPositions.push({
-            currentPosition: new Animated.ValueXY(thisPosition),
-            origin: thisPosition
+    try {
+      items.forEach((item, index) => {
+        if (!_.findKey(this.itemOrder, oldItem => oldItem.key === item.key)) {
+          this.itemOrder.push({
+            key: item.key,
+            ref: item.ref,
+            order: this.items.length
           });
-          this.items.push(item);
-          this.setState({ blockPositions, blockPositionsSetCount });
-          this.setGhostPositions();
+          if (!this.initialLayoutDone) {
+            this.items.push(item);
+          } else {
+            let blockPositions = this.state.blockPositions;
+            let blockPositionsSetCount = ++this.state.blockPositionsSetCount;
+            let thisPosition = this.getNextBlockCoordinates();
+            blockPositions.push({
+              currentPosition: new Animated.ValueXY(thisPosition),
+              origin: thisPosition
+            });
+            this.items.push(item);
+            this.setState({ blockPositions, blockPositionsSetCount });
+            this.setGhostPositions();
+          }
         }
-      }
-    });
+      });
+    } catch (error) {
+      console.warn(error);
+    }
   };
 
   _removeDisappearedChildren = items => {
     let deleteBlockIndices = [];
-    _.cloneDeep(this.itemOrder).forEach((item, index) => {
-      if (!_.findKey(items, oldItem => oldItem.key === item.key)) {
-        deleteBlockIndices.push(index);
+    try {
+      _.cloneDeep(this.itemOrder).forEach((item, index) => {
+        if (!_.findKey(items, oldItem => oldItem.key === item.key)) {
+          deleteBlockIndices.push(index);
+        }
+      });
+      if (deleteBlockIndices.length > 0) {
+        this.deleteBlocks(deleteBlockIndices);
       }
-    });
-    if (deleteBlockIndices.length > 0) {
-      this.deleteBlocks(deleteBlockIndices);
+    } catch (error) {
+      console.warn(error);
     }
   };
 
