@@ -72,6 +72,7 @@ class SortableGrid extends Component {
     this.onDragRelease = NULL_FN;
     this.onDragStart = NULL_FN;
     this.onDeleteItem = NULL_FN;
+    this.onDeletePress = NULL_FN;
     this.dragStartAnimation = null;
 
     this.rows = null;
@@ -341,11 +342,12 @@ class SortableGrid extends Component {
   };
 
   activateDrag = key => () => {
-    if (
-      (this.props.deleteOnPress && this.state.deleteModeOn) ||
-      this.props.disableDrag
-    )
-      return;
+    console.log(key);
+    console.log(this.props.disableDrag);
+    if (this.props.disableDrag) return;
+    if (this.props.deleteOnPress && this.state.deleteModeOn) {
+      return this.deleteBlocks([key]);
+    }
     this.panCapture = true;
     this.onDragStart(this.itemOrder[key]);
     this.setState({ activeBlock: key });
@@ -436,11 +438,10 @@ class SortableGrid extends Component {
         this.animateBlockMove(blockIndex, { x, y });
       });
       this.setGhostPositions();
-      if (typeof this.props.onDeleteItem === "function") {
-        let itemOrder = _.sortBy(this.itemOrder, item => item.order);
-        this.onDeleteItem({ itemOrder });
-      }
     });
+    if (typeof this.props.onDeletePress === "function") {
+      this.onDeletePress(this.itemOrder);
+    }
   };
 
   _fixItemOrderOnDeletion = orderItem => {
@@ -589,11 +590,12 @@ class SortableGrid extends Component {
       left: this.state.blockWidth / 2 - 15,
       width: 30,
       height: 30,
-      opacity: this.props.initialDeleteIconOpacity || 0.5
+      opacity: this.props.deleteIconOpacity || 0.5
     },
     this.state.activeBlock == key &&
       this._getBlock(key).origin && {
-        opacity: 0.5 + this._getDynamicOpacity(key)
+        opacity:
+          this.props.deleteIconOpacity || 0.5 + this._getDynamicOpacity(key)
       }
   ];
 
